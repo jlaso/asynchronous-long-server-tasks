@@ -7,11 +7,14 @@ remember to run first ```composer dumpautoload``` in order to generate the appro
 
 To run the example:
 
-from the root of the project in two different terminal type this:
+create a virtual a host with "your-local-name" in your development environment:
 
-terminal1> php55 -S localhost:40000 -t example-client 
-
-terminal2> php55 -S localhost:40001 -t example-server
-
-now, go to your brower and write http://localhost:4000 and you'll see a simple page with a button to start a new task
+now, go to your browser and write http://your-local-name and you'll see a simple page with a button to start a new task
 and an area to see messages.
+
+
+##A little complex example##
+
+This example serves as a base to document the second part of the article [on PHP Classes](http://www.phpclasses.org/blog/package/9383/post/1-Starting-Long-Server-PHP-Scripts-and-Monitor-their-Status-Part-1-The-Theory.html)
+ 
+Go in your browser to http://your-local-name/file-list.php

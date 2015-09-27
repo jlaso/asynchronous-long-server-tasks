@@ -61,14 +61,14 @@ class Status extends CommonAbstract
      */
     function getNotDoneTasks()
     {
-        $tasks = $this->getStatusContent();
-        foreach($tasks as $id=>$task){
-            if($task==self::DONE){
-                unset($tasks[$id]);
+        $statuses = $this->getStatusContent();
+        foreach($statuses as $id=>$status){
+            if(strpos($status, self::DONE) === 0){
+                unset($status[$id]);
             }
         }
 
-        return $tasks;
+        return $statuses;
     }
 
     /**

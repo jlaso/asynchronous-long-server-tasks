@@ -6,6 +6,7 @@ use JLaso\ToolsLib\Json;
 use JLaso\ToolsLib\Starter;
 
 $id = $_REQUEST["id"];
+$task = $_REQUEST["_task"];
 
 if (!$id) {
 
@@ -13,7 +14,7 @@ if (!$id) {
 
 }else{
 
-    $starter = new Starter("localhost:40001/task.php");
+    $starter = new Starter("/server/".$task.".php", $task);
 
     if ($starter->invoke(array("id"=>$id))) {
         Json::ok(array('id'=>$id));

@@ -95,7 +95,10 @@
             id = $("#start-task").attr("task");
             $.ajax({
                 url: '/start-task.php',
-                data: { id: id },
+                data: {
+                    id: id,
+                    _task: "task"
+                },
                 type: 'POST',
                 success: function(data){
                     //logMessage(data);

@@ -6,6 +6,7 @@ use JLaso\ToolsLib\Json;
 use JLaso\ToolsLib\Status;
 
 $id = $_REQUEST["id"];
+$task = $_REQUEST["_task"];
 
 if (!$id) {
 
@@ -13,7 +14,7 @@ if (!$id) {
 
 }else{
 
-    $status = new Status();
+    $status = new Status($task);
     Json::ok(array('id'=>$id, 'status'=>$status->getInfo($id)));
 
 }

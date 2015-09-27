@@ -5,7 +5,7 @@ ignore_user_abort(true);
 
 // this file wants to simulate a real large process that have to be executed in background
 
-require_once __DIR__.'/../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 use JLaso\ToolsLib\Json;
 use JLaso\ToolsLib\Status;
@@ -13,16 +13,18 @@ use JLaso\ToolsLib\Status;
 // get the parameters as JSON
 $postParams = Json::getBodyParams();
 
-$id = isset($postParams['id']) ? $postParams['id'] : 0;
+$id = isset($postParams['id']) ? $postParams['id'] : null;
+$fileName = isset($postParams['name']) ? $postParams['name'] : "";
+$fileSize = isset($postParams['size']) ? $postParams['size'] : "";
 
-if (!$id) {
+if ((null === $id) || !$fileName || !$fileSize) {
 
-    Json::error("you have to send and ID to start processing");
+    Json::error("you have to send 'id','name' and 'size' to start processing");
     exit();
 
 }
 
-$status = new Status();
+$status = new Status($postParams["_task"]);
 
 // if the status file exists means that another instance of this task is working
 if ($status->existsStatusFile()) {
@@ -39,6 +41,7 @@ header("Content-Length: ".ob_get_length());
 header('Connection: close');
 ob_end_flush();
 flush();
+session_write_close();
 
 // wait a little before the huge work
 sleep(1);
@@ -65,7 +68,7 @@ do {
     if ($status->getInfo($id) != Status::DONE) {
 
         $status->updateStatus($id, Status::PROCESSING);
-        process($id);
+        process($status, $id, $fileName, $fileSize);
         $status->updateStatus($id, Status::DONE);
 
     }
@@ -82,8 +85,14 @@ sleep(2);   // give time to frontend to recover updated status
 $status->freeStatusFile();
 
 
-function process($id)
+function process(Status $status, $id, $name, $size)
 {
-    // simulate a long long process
-    sleep(120);
+    $factor = intval($size/100);
+    for($i=0;$i<=$size;$i+=$factor){
+        sleep(1);  // simulate that is copying a piece of the file
+        $status->updateStatus($id, Status::PROCESSING.":".intval($i/$factor));
+    }
+    sleep(1);
+    $status->updateStatus($id, Status::DONE);
+    sleep(2);
 }

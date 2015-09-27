@@ -16,20 +16,27 @@ abstract class CommonAbstract
     protected $debug;
     /** @var  string */
     protected $file;
+    /** @var  string */
+    protected $task;
     /** @var string  */
     protected $oldFile;
 
     /**
      * CommonAbstract constructor.
+     * @param string $task
      * @param bool $debug
      * @internal param string $dataFolder
      */
-    public function __construct($debug = false)
+    public function __construct($task, $debug = false)
     {
+        $this->task = $task;
         $this->dataFolder = dirname(dirname(__FILE__)).'/data';
         $this->debug = $debug;
-        $this->file = $this->dataFolder.'/'.self::STATUS_FILE;
-        $this->oldFile = $this->dataFolder.'/'.self::STATUS_FILE.'.old';
+        if (!file_exists($this->dataFolder)) {
+            mkdir ($this->dataFolder, 0777);
+        }
+        $this->file = $this->dataFolder.'/'.$task.'-'.self::STATUS_FILE;
+        $this->oldFile = $this->dataFolder.'/'.$task.'-'.self::STATUS_FILE.'.old';
     }
 
     /**
