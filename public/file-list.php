@@ -121,8 +121,8 @@
                     if (data.status == "done") {
                         $("#file-" + id + " .loader").attr("src", "/img/checkmark.png");
                         $("#file-" + id +" td.percent").css("background-position-x", "-100px");
-                        if (id<fileList.length) {
-                            requestCopyOfFile(id+1);
+                        if (id<fileList.length-1) {
+                            setTimeout(function() { requestCopyOfFile(id+1); }, 600);
                         }
                     }else{
                         var percent = parseInt(data.percent);

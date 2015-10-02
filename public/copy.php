@@ -11,7 +11,7 @@ $task = $_REQUEST["_task"];
 
 if ((null === $id) | !is_array($file)) {
 
-    Json::error('The id is mandatory in order to process your request!');
+    Json::error('The "id" and "file" are mandatory in order to process your request!');
 
 } else {
 
@@ -20,7 +20,7 @@ if ((null === $id) | !is_array($file)) {
     if (Starter::SUCCESS == ($result = $starter->invoke(array("id" => $id, "name" => $file["name"], "size" => $file["size"])))) {
         Json::ok(array('id' => $id));
     } else {
-        Json::error('something wrong happened trying to start the task on the server! error code '.$result);
+        Json::error('something wrong happened trying to start the task on the server! '.$starter->getLastError());
     }
 
 }

@@ -10,12 +10,9 @@ require_once __DIR__.'/../../vendor/autoload.php';
 use JLaso\ToolsLib\Json;
 use JLaso\ToolsLib\Status;
 
-// get the parameters as JSON
-$postParams = Json::getBodyParams();
-
-$id = isset($postParams['id']) ? $postParams['id'] : null;
-$fileName = isset($postParams['name']) ? $postParams['name'] : "";
-$fileSize = isset($postParams['size']) ? $postParams['size'] : "";
+$id = isset($_POST['id']) ? $_POST['id'] : null;
+$fileName = isset($_POST['name']) ? $_POST['name'] : "";
+$fileSize = isset($_POST['size']) ? $_POST['size'] : "";
 
 if ((null === $id) || !$fileName || !$fileSize) {
 
@@ -24,7 +21,7 @@ if ((null === $id) || !$fileName || !$fileSize) {
 
 }
 
-$status = new Status($postParams["_task"]);
+$status = new Status($_POST["_task"]);
 
 // if the status file exists means that another instance of this task is working
 if ($status->existsStatusFile()) {
@@ -89,7 +86,7 @@ function process(Status $status, $id, $name, $size)
 {
     $factor = intval($size/100);
     for($i=0;$i<=$size;$i+=$factor){
-        sleep(1);  // simulate that is copying a piece of the file
+        usleep(100000);  // simulate that is copying a piece of the file
         $status->updateStatus($id, Status::PROCESSING.":".intval($i/$factor));
     }
     sleep(1);
