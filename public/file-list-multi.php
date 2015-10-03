@@ -13,7 +13,7 @@
         #container{
             position: relative;
             width: 100%;
-            height: 70%;
+            height: 40%;
         }
         #content{
             position: absolute;
@@ -24,7 +24,7 @@
         #status{
             position: fixed;
             overflow: auto;
-            height: 30%;
+            height: 50%;
             bottom: 0;
             width: 100%;
             border: 1px solid black;
@@ -49,11 +49,20 @@
             width: 79px;
             text-align: right;
         }
+        div.center {
+            width: 100%;
+            text-align: center;
+        }
     </style>
     <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 </head>
 
 <body>
+
+<div class="center">
+    <h2>Copying multiple files demo</h2>
+    <h3><a href="http://www.phpclasses.org/blog/package/9383/">Take a look on the blog of this class</a></h3>
+</div>
 
 <div id="container">
     <div id="content">
@@ -92,7 +101,7 @@
 
     function updateFileList(){
         // fetch the list from the server, here simulating some random data
-        <?php for($i=0;$i<10;$i++) echo "\t".'fileList.push({ name:"'.uniqid('file-').'.ext", size: '.(10*rand(100,200)).'});'."\n"; ?>
+        <?php for($i=0;$i<3;$i++) echo "\t".'fileList.push({ name:"'.uniqid('file-').'.ext", pending: true, size: '.(100*rand(200,300)).'});'."\n"; ?>
 
         var content = "";
         for(var i=0;i<fileList.length; i++){
@@ -106,46 +115,67 @@
         $("#file-list tbody").html(content);
     }
 
-    function requestStatusOfFile(id) {
+    function requestStatusOfFiles() {
+        var ids = "";
+        for(var i=0;i<fileList.length; i++){
+            if (fileList[i].pending) {
+                ids += i + ",";
+            }
+        }
         $.ajax({
-            url: '/status-copy.php',
+            url: '/status-copy-multi.php',
             data: {
-                id: id,
-                _task: "copy"
+                ids: ids,
+                _task: "copy-multi"
             },
             cache: false,
             scope: this,
             type: "POST",
             success: function(data) {
                 if (data.result){
-                    if (data.status == "done") {
-                        $("#file-" + id + " .loader").attr("src", "/img/checkmark.png");
-                        $("#file-" + id +" td.percent").css("background-position-x", "-100px");
-                        if (id<fileList.length-1) {
-                            setTimeout(function() { requestCopyOfFile(id+1); }, 600);
+                    var pending = 0;
+                    for (var i=0; i<data.info.length; i++){
+                        var info = data.info[i];
+                        info.id = parseInt(info.id);
+                        switch (info.status) {
+                            case "done":
+                                updateRowId(info.id, "checkmark", null);
+                                fileList[info.id].pending = false;
+                                break;
+                            case "error":
+                                updateRowId(info.id, "alert", null);
+                                break;
+                            default:
+                                pending++;
+                                updateRowId(info.id, null, parseInt(info.percent));
+                                break;
                         }
-                    }else{
-                        var percent = parseInt(data.percent);
-                        $("#file-" + id +" td.percent").css("background-position-x", "-"+(100-percent)+"px");
-                        setTimeout(function() { requestStatusOfFile(id); }, 1500);
+                    }
+                    console.log("pending = "+pending);
+                    if (pending > 0) {
+                        setTimeout(function () { requestStatusOfFiles(); }, 800);
                     }
                 }else{
-                    $("#file-" + id + " .loader").attr("src", "/img/alert.png");
-                    $("#file-" + id +" td.percent").css("background-position-x", "-100px");
-                    logMessages(data.reason);
+                    logMessage(data.reason);
                 }
             }
         })
     }
 
+    function updateRowId(id, img, percent) {
+        if (img != null) $("#file-" + id + " .loader").attr("src", "/img/"+img+".png");
+        if (percent == null) percent = 100; else percent = 100-percent;
+        $("#file-" + id +" td.percent").css("background-position-x", "-"+percent+"px");
+    }
+
     function requestCopyOfFile(id){
         logMessage("requesting copy of file "+fileList[id].name);
         $.ajax({
-            url: '/copy.php',
+            url: '/copy-multi.php',
             data: {
                 id: id,
                 file: fileList[id],
-                _task: "copy"
+                _task: "copy-multi"
             },
             cache: false,
             scope: this,
@@ -153,13 +183,15 @@
             success: function(data) {
                 if (data.result) {
                     $("#file-" + id + " .loader").show();
-                    setTimeout(function() { requestStatusOfFile(id); }, 1500);
+                    if (id == 0) {
+                        setTimeout(function () { requestStatusOfFiles(); }, 500);
+                    }
                 }else {
                     logMessage(data.reason);
                 }
             },
             error: function(){
-                logMessage(data.reason);
+                logMessage("some error happened trying to start task");
             }
         });
     }
@@ -178,7 +210,10 @@
             $(this).hide();
 
             console.log("starting copy...");
-            requestCopyOfFile(0);
+
+            for(var i=0; i<fileList.length; i++) {
+                requestCopyOfFile(i);
+            }
 
             return false;
         })

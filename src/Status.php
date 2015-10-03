@@ -43,11 +43,11 @@ class Status extends CommonAbstract
 
         $rows = preg_split("/$\R?^/m", $content);
 
-        foreach ($rows as $row){
+        foreach ($rows as $row) {
             $row = str_replace("\n", "", $row);
             if (trim($row)) {
                 list($id, $text) = explode("|", $row);
-                $status[$id] = $text;
+                $status[intval($id)] = $text;
             }
         }
 
@@ -62,8 +62,8 @@ class Status extends CommonAbstract
     function getNotDoneTasks()
     {
         $statuses = $this->getStatusContent();
-        foreach($statuses as $id=>$status){
-            if(strpos($status, self::DONE) === 0){
+        foreach ($statuses as $id => $status) {
+            if (strpos($status, self::DONE) === 0) {
                 unset($status[$id]);
             }
         }
@@ -92,8 +92,8 @@ class Status extends CommonAbstract
     protected function dumpStatusContent($content = array())
     {
         $tmp = "";
-        foreach($content as $id=>$msg){
-            $tmp .= $id.'|'.$msg."\n";
+        foreach ($content as $id => $msg) {
+            $tmp .= $id . '|' . $msg . "\n";
         }
         $this->putStatusFileContent($tmp);
     }
