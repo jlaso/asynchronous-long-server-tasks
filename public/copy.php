@@ -9,9 +9,9 @@ $id = isset($_REQUEST["id"]) ? intval($_REQUEST["id"]) : null;
 $file = $_REQUEST["file"];
 $task = $_REQUEST["_task"];
 
-if ((null === $id) | !is_array($file)) {
+if ((null === $id) || !is_array($file) || !$task) {
 
-    Json::error('The "id" and "file" are mandatory in order to process your request!');
+    Json::error('The "id","file" and "_task" are mandatory in order to process your request!');
 
 } else {
     $url  = ($_SERVER["SERVER_PORT"] == "443") ? "https://" : "http://";
