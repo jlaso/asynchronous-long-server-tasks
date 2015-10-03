@@ -13,8 +13,9 @@ if (!$id) {
     Json::error('The id is mandatory in order to process your request!');
 
 }else{
-
-    $starter = new Starter("/server/".$task.".php", $task);
+    $url  = ($_SERVER["SERVER_PORT"] == "443") ? "https://" : "http://";
+    $url .= $_SERVER["SERVER_NAME"] . "/server/{$task}.php";
+    $starter = new Starter($url, $task);
 
     if ($starter->invoke(array("id"=>$id))) {
         Json::ok(array('id'=>$id));

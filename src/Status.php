@@ -35,7 +35,7 @@ class Status extends CommonAbstract
      *
      * @return array
      */
-    protected function getStatusContent()
+    public function getStatusContent()
     {
         $status = array();
 

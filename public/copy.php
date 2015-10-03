@@ -14,8 +14,9 @@ if ((null === $id) | !is_array($file)) {
     Json::error('The "id" and "file" are mandatory in order to process your request!');
 
 } else {
-
-    $starter = new Starter("http://asyn-demo.local/server/copy-file.php", $task);
+    $url  = ($_SERVER["SERVER_PORT"] == "443") ? "https://" : "http://";
+    $url .= $_SERVER["SERVER_NAME"] . "/server/copy-file.php";
+    $starter = new Starter($url, $task);
 
     if (Starter::SUCCESS == ($result = $starter->invoke(array("id" => $id, "name" => $file["name"], "size" => $file["size"])))) {
         Json::ok(array('id' => $id));

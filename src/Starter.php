@@ -37,7 +37,7 @@ class Starter extends CommonAbstract
     {
         parent::__construct($task, $debug);
         if (strpos($url, "http://") !== 0) {
-            $url = "http://" . $_SERVER["SERVER_ADDR"] . "/" . $url;
+            $url = "http://" . $_SERVER["SERVER_NAME"] . "/" . $url;
         }
         if (!preg_match("~(?<host>http[s]?:\/\/[^\/|^:]+)(?<port>:\d+)?(?<url>\/.*)$~i", $url, $matches)) {
             throw new Exception("The url passed doesn't match http://host:port/url");
