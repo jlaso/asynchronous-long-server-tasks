@@ -53,10 +53,9 @@ class Starter extends CommonAbstract
      * to the requester, then call periodically to status script in order to know how is going
      *
      * @param array $data payload to the request
-     * @param boolean $insecure allows curl to accept insecure requests
      * @return integer
      */
-    public function invoke($data = array(), $insecure = true)
+    public function invoke($data = array())
     {
         if (!isset($data['id'])) {
             return self::ERROR_ID;

@@ -21,6 +21,10 @@ abstract class CommonAbstract
     /** @var string  */
     protected $oldFile;
 
+    protected $handle = null;
+
+    const DONT_UNLOCK = true;
+
     /**
      * CommonAbstract constructor.
      * @param string $task
@@ -75,9 +79,29 @@ abstract class CommonAbstract
      *
      * @return string
      */
-    public function getStatusFileContent()
+    public function getStatusFileContent($dontUnlock = false)
     {
-        return file_get_contents($this->file);
+        if ($this->handle == null){
+            $this->lockStatusFile(true);
+        }
+        $content = fread($this->handle, filesize($this->file));
+        if (!$dontUnlock){
+            $this->unlockStatusFile();
+        }
+        return $content;
+    }
+
+    public function lockStatusFile($read = true)
+    {
+        $this->handle = fopen($this->file, "r+");
+        while (!flock($this->handle, LOCK_EX | LOCK_NB)){ usleep(rand($read ? 100 : 1000,$read ? 500 :1500)); }
+    }
+
+    public function unlockStatusFile()
+    {
+        flock($this->handle, LOCK_UN);
+        fclose($this->handle);
+        $this->handle = null;
     }
 
     /**
@@ -87,7 +111,14 @@ abstract class CommonAbstract
      */
     public function putStatusFileContent($content)
     {
-        file_put_contents($this->file, $content);
+        if ($this->handle == null){
+            $this->lockStatusFile();
+        }
+        ftruncate ($this->handle, 0);
+        fwrite($this->handle, $content);
+        fflush($this->handle);
+        usleep(1000);
+        $this->unlockStatusFile();
     }
 
     /**

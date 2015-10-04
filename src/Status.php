@@ -35,11 +35,11 @@ class Status extends CommonAbstract
      *
      * @return array
      */
-    public function getStatusContent()
+    public function getStatusContent($dontUnlock = false)
     {
         $status = array();
 
-        $content = $this->getStatusFileContent();
+        $content = $this->getStatusFileContent($dontUnlock);
 
         $rows = preg_split("/$\R?^/m", $content);
 
@@ -79,9 +79,11 @@ class Status extends CommonAbstract
      */
     public function updateStatus($id, $message)
     {
-        $status = $this->getStatusContent();
+        $this->lockStatusFile(false);
+        $status = $this->getStatusContent(self::DONT_UNLOCK);
         $status[$id] = $message;
         $this->dumpStatusContent($status);
+        $this->unlockStatusFile();
     }
 
     /**
